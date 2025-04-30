@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
-  "changelog": ["@changesets/cli/changelog", { "repo": "your-github-username/purer-ui" }],
+  "changelog": ["@changesets/cli/changelog", { "repo": "greywen/purer-ui" }],
   "commit": false,
   "fixed": [],
   "linked": [],
