@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'release/*'
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -49,8 +50,36 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+        
+      - name: Build and Test
+        run: |
+          pnpm build
+          pnpm lint
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create npm organization if it doesn't exist
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          npx npm-create-scope@latest purer-ui --token $NPM_TOKEN || true
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Prepare Release (Release Branch)
+        if: ${{ startsWith(github.ref, 'refs/heads/release/') }}
+        run: |
+          echo "Preparing a release on the release branch"
+          pnpm changeset version
+          
+          if [[ -n $(git status --porcelain) ]]; then
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add .
+            git commit -m "Version packages for release"
+            git push
+          fi
+        
+      - name: Create Release Pull Request or Publish to npm (Main Branch)
+        if: ${{ github.ref == 'refs/heads/main' }}
         id: changesets
         uses: changesets/action@v1
         with:
