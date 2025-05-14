@@ -56,14 +56,38 @@ jobs:
           pnpm build
           pnpm lint
 
-      - name: Create npm organization if it doesn't exist
+      - name: Create NPM Configuration
         if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npx npm-create-scope@latest purer-ui --token $NPM_TOKEN || true
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Check NPM Scope
+        if: ${{ github.ref == 'refs/heads/main' }}
+        id: check_scope
+        continue-on-error: true
+        run: |
+          echo "Checking if scope exists..."
+          npm view @purer-ui/core 2>/dev/null || npm view @purer-ui/themes 2>/dev/null || echo "SCOPE_NEEDED=true" >> $GITHUB_ENV
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create packages with public access
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          echo "Ensuring all packages have 'public' access..."
+          
+          # 递归查找所有package.json文件
+          find . -name "package.json" -not -path "*/node_modules/*" -not -path "*/dist/*" | while read pkg; do
+            # 检查是否已有publishConfig配置
+            if ! grep -q "publishConfig" "$pkg"; then
+              # 在package.json的最后一个}前插入publishConfig
+              sed -i 's/}$/,\n  "publishConfig": {\n    "access": "public"\n  }\n}/' "$pkg"
+              echo "Updated $pkg with public access"
+            fi
+          done
+        
       - name: Prepare Release (Release Branch)
         if: ${{ startsWith(github.ref, 'refs/heads/release/') }}
         run: |
