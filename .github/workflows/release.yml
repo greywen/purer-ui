@@ -62,56 +62,9 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      - name: Configure release script  # 配置发布脚本
-        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
-        run: |
-          # 修改发布脚本确保使用--access public
-          if [ -f "package.json" ]; then
-            # 检查是否已有发布脚本
-            if grep -q '"release"' "package.json"; then
-              # 更新发布脚本确保使用--access public
-              sed -i 's/"release": *"[^"]*"/"release": "changeset publish --access public"/' package.json
-            else
-              # 添加发布脚本
-              sed -i '/"scripts": *{/a \    "release": "changeset publish --access public",' package.json
-            fi
-            echo "Updated release script in package.json"
-          fi
-        
-      - name: Create .changesetrc.json if needed  # 创建 .changesetrc.json 配置文件
-        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
-        run: |
-          # 创建或更新 .changesetrc.json 文件，确保使用 --access public
-          echo '{
-            "access": "public",
-            "baseBranch": "main",
-            "changelog": "@changesets/cli/changelog",
-            "commit": false,
-            "linked": [],
-            "updateInternalDependencies": "patch",
-            "ignore": []
-          }' > .changesetrc.json
-        
-      - name: Prepare Release (Release Branch)  # 在 release 分支准备发布
-        if: ${{ startsWith(github.ref, 'refs/heads/release/') }}  # 仅在 release/* 分支执行
-        run: |
-          echo "Preparing a release on the release branch"
-          pnpm changeset version  # 更新版本号
-          
-          if [[ -n $(git status --porcelain) ]]; then  # 如有更改则提交
-            git config --local user.email "github-actions[bot]@users.noreply.github.com"
-            git config --local user.name "github-actions[bot]"
-            git add .
-            git commit -m "Version packages for release"
-            git push
-          fi
-        
       - name: Custom Publish (Main Branch)  # 在 main 分支发布
         if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
         run: |
-          # 首先更新版本号
-          pnpm changeset version
-          
           # 使用pnpm发布所有包，传递--access public参数
           echo "Publishing packages with public access..."
           pnpm publish -r --access public --no-git-checks  # 发布所有包，设为公开访问，不检查 git 状态
