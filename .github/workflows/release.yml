@@ -56,14 +56,12 @@ jobs:
           pnpm lint
 
       - name: Create NPM Configuration  # 创建 NPM 配置
-        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      - name: Custom Publish (Main Branch)  # 在 main 分支发布
-        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
+      - name: NPM Publish
         run: |
           # 使用pnpm发布所有包，传递--access public参数
           echo "Publishing packages with public access..."
