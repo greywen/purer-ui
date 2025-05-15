@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["release/*", "dev"]  # 当推送到 release/* 或 dev 分支时触发
+    branches: ["feat/*", "dev"]  # 当推送到 feat/* 或 dev 分支时触发
   pull_request:
-    branches: ["release/*", "dev"]  # 当对 release/* 或 dev 分支创建 PR 时触发
+    branches: ["feat/*", "dev"]  # 当对 feat/* 或 dev 分支创建 PR 时触发
 
 jobs:
   build:
