@@ -1,6 +1,6 @@
 {
   "name": "@purer-ui/button",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Button component for Purer UI",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -24,7 +24,7 @@
   },
   "publishConfig": {
     "dependencies": {
-      "@purer-ui/core": "^0.1.0"
+      "@purer-ui/core": "^0.0.1"
     }
   },
   "devDependencies": {
