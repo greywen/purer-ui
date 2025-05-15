@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: ["release/*", "dev"]  # 当推送到 release/* 或 dev 分支时触发
+  pull_request:
+    branches: ["release/*", "dev"]  # 当对 release/* 或 dev 分支创建 PR 时触发
+
+jobs:
+  build:
+    name: Build
+    timeout-minutes: 15  # 设置任务超时时间为 15 分钟
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code  # 检出代码仓库
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # 克隆最近的两次提交
+
+      - name: Setup Node.js  # 设置 Node.js 环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Setup pnpm  # 设置 pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory  # 获取 pnpm 缓存目录
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache  # 设置 pnpm 缓存
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies  # 安装项目依赖
+        run: pnpm install
+
+      - name: Build  # 构建项目
+        run: pnpm build
+
+      - name: Lint  # 运行代码检查
+        run: pnpm lint

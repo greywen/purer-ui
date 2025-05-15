@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - 'release/*'  # 当推送到 release/* 分支时触发
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}  # 确保同一时间只运行一个相同的工作流
+
+permissions:
+  contents: write  # 允许写入仓库内容
+  pull-requests: write  # 允许创建和更新 PR
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo  # 检出代码仓库
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 完整克隆，包含所有历史
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js  # 设置 Node.js 环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup pnpm  # 设置 pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory  # 获取 pnpm 缓存目录
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache  # 设置 pnpm 缓存
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install Dependencies  # 安装依赖
+        run: pnpm install
+        
+      - name: Build and Test  # 构建和测试项目
+        run: |
+          pnpm build
+          pnpm lint
+
+      - name: Create NPM Configuration  # 创建 NPM 配置
+        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Custom Publish (Main Branch)  # 在 main 分支发布
+        if: ${{ github.ref == 'refs/heads/main' }}  # 仅在 main 分支执行
+        run: |
+          # 使用pnpm发布所有包，传递--access public参数
+          echo "Publishing packages with public access..."
+          pnpm publish -r --access public --no-git-checks  # 发布所有包，设为公开访问，不检查 git 状态
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} 
