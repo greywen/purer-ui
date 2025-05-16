@@ -13,7 +13,7 @@
     "test": "turbo run test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "publish-packages": "node scripts/publish.js"
+    "publish-packages": "node scripts/publish-packages.js"
   },
   "devDependencies": {
     "@storybook/addon-essentials": "^7.6.10",

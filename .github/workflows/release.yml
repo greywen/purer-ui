@@ -47,7 +47,10 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
           echo "access=public" >> .npmrc
 
-      - name: Build and publish core
+      - name: Build
+        run: pnpm build
+
+      - name: Publish core
         run: node scripts/publish-core.js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
