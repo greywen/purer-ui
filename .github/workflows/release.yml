@@ -3,35 +3,35 @@ name: Release
 on:
   push:
     branches:
-      - 'release/*'  # 当推送到 release/* 分支时触发
+      - 'release/*'
 jobs:
   release:
-    name: 发布包
+    name: Release package
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: Check out code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: 设置 Node.js
+      - name: Setup Node.js 
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
-      - name: 安装 pnpm
+      - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
 
-      - name: 获取 pnpm 缓存路径
+      - name: Get pnpm cache path
         id: pnpm-cache
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - name: 设置缓存
+      - name: Set cache
         uses: actions/cache@v3
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
@@ -39,15 +39,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      - name: 安装依赖
+      - name: Install dependencies
         run: pnpm install
 
-      - name: 创建 .npmrc 文件
+      - name: Create .npmrc file
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
           echo "access=public" >> .npmrc
 
-      - name: 构建和发布
+      - name: Build and publish
         run: node scripts/publish.js
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

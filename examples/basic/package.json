@@ -10,9 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@purer-ui/button": "workspace:*",
-    "@purer-ui/core": "workspace:*",
-    "@purer-ui/themes": "workspace:*",
+    "@purer-ui/button": "",
+    "@purer-ui/core": "",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
