@@ -25,22 +25,45 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// 检查包版本是否已经发布
+function isVersionPublished(packageName, version) {
+  try {
+    const result = execSync(`npm view ${packageName}@${version} version`, { encoding: 'utf8' }).trim();
+    console.log(`Version ${result} already published for ${packageName}`);
+    return true;
+  } catch (error) {
+    // 如果版本不存在，npm view 会返回错误
+    return false;
+  }
+}
+
 // 为每个包进行构建和发布
 async function publishPackages() {
   for (const packageName of PACKAGE_ORDER) {
     const shortName = packageName.split('/')[1];
     const packagePath = path.join(
-      __dirname, 
-      '../packages', 
+      __dirname,
+      '../packages',
       ROOT_PACKAGES.includes(shortName) ? shortName : `components/${shortName}`
     );
-    
+
     if (!fs.existsSync(packagePath)) {
       console.warn(`Package ${packageName} does not exist in path ${packagePath}`);
       continue;
     }
 
-    console.log(`Building ${packageName}...`);
+    // 读取包的版本信息
+    const packageJsonPath = path.join(packagePath, 'package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const version = packageJson.version;
+
+    // 检查版本是否已发布
+    if (isVersionPublished(packageName, version)) {
+      console.log(`Skipping ${packageName}@${version} as it is already published`);
+      continue;
+    }
+
+    console.log(`Building ${packageName}@${version}...`);
     try {
       execSync('pnpm build', { cwd: packagePath, stdio: 'inherit' });
     } catch (error) {
@@ -48,32 +71,19 @@ async function publishPackages() {
       process.exit(1);
     }
 
-    console.log(`Publishing ${packageName}...`);
-    try {
-      // 使用NPM_TOKEN进行发布
-      const publishCommand = 'pnpm publish --no-git-checks';
-      execSync(publishCommand, { 
-        cwd: packagePath, 
-        stdio: 'inherit',
-        env: { ...process.env } // 确保所有环境变量都传递给子进程，包括NPM_TOKEN
-      });
-      
-      // 在发布包之间添加延迟，给NPM注册表处理时间
-      console.log(`Waiting for NPM registry to process ${packageName}...`);
-      await sleep(10000); // 10秒延迟
-      
-    } catch (error) {
-      console.error(`Failed to publish ${packageName}`);
-      console.error('Error details:', error.message);
-      
-      // 询问是否继续发布
-      if (process.env.CI) {
-        // 在CI环境中直接退出
-        process.exit(1);
-      } else {
-        console.log('Continuing with next package...');
-      }
-    }
+    console.log(`Publishing ${packageName}@${version}...`);
+
+    // 使用NPM_TOKEN进行发布
+    const publishCommand = 'pnpm publish --no-git-checks';
+    execSync(publishCommand, {
+      cwd: packagePath,
+      stdio: 'inherit',
+      env: { ...process.env } // 确保所有环境变量都传递给子进程，包括NPM_TOKEN
+    });
+
+    // 在发布包之间添加延迟，给NPM注册表处理时间
+    console.log(`Waiting for NPM registry to process ${packageName}...`);
+    await sleep(10000); // 10秒延迟
   }
 
   console.log('All packages published successfully!');
