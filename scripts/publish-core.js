@@ -60,7 +60,7 @@ async function publishPackages() {
     return;
   }
 
-  const publishCommand = `pnpm publish --filter ${publishPackageList.join(' --filter ')}`;
+  const publishCommand = `pnpm publish --git-checks --access public --filter ${publishPackageList.join(' --filter ')}`;
   execSync(publishCommand, {
     cwd: __dirname,
     stdio: 'inherit',

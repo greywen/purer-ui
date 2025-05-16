@@ -62,7 +62,7 @@ async function publishPackages() {
 
     console.log('publishPackageList', publishPackageList.join());
 
-    const publishCommand = `pnpm publish --filter ${publishPackageList.join(' --filter ')}`;
+    const publishCommand = `pnpm publish --git-checks --access public --filter ${publishPackageList.join(' --filter ')}`;
     
     console.log('publishCommand', publishCommand);
 
