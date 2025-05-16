@@ -63,6 +63,15 @@ async function publishPackages() {
       continue;
     }
 
+    // 安装依赖
+    console.log(`Installing dependencies for ${packageName}...`);
+    try {
+      execSync('pnpm install', { cwd: packagePath, stdio: 'inherit' });
+    } catch (error) {
+      console.error(`Failed to install dependencies for ${packageName}`);
+      process.exit(1);
+    }
+
     console.log(`Building ${packageName}@${version}...`);
     try {
       execSync('pnpm build', { cwd: packagePath, stdio: 'inherit' });
