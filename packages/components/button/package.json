@@ -1,6 +1,6 @@
 {
   "name": "@purer-ui/button",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Button component for Purer UI",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
