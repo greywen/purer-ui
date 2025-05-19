@@ -18,13 +18,13 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', '@purer-ui/core', 'react/jsx-runtime'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', '@purer-ui/core'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          '@purer-ui/core': 'PurerUICore',
-          'react/jsx-runtime': 'jsxRuntime'
+          'react/jsx-runtime': 'jsxRuntime',
+          '@purer-ui/core': 'PurerUICore'
         }
       },
     },

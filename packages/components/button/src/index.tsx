@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import * as React from 'react';
 import { cn } from '@purer-ui/core';
 
 export interface ButtonProps
@@ -10,8 +10,8 @@ export interface ButtonProps
   color?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
   fullWidth?: boolean;
   loading?: boolean;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export function Button({
