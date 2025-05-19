@@ -25,8 +25,7 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
           '@purer-ui/core': 'PurerUICore',
           'react/jsx-runtime': 'jsxRuntime'
-        },
-        preserveModules: true,
+        }
       },
     },
     commonjsOptions: {
