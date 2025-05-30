@@ -1,1 +1,1 @@
-export * from './hooks/useClickOutside';
+export * from './useClickOutside';

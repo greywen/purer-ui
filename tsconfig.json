@@ -16,6 +16,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "examples/tailwind.config.ts", "packages/examples/tailwind.config.js"],
   "exclude": ["node_modules"]
 } 

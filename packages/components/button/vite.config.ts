@@ -31,10 +31,5 @@ export default defineConfig({
     commonjsOptions: {
       esmExternals: true,
     },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
-  },
+  }
 }); 

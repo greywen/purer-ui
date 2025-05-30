@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'PurerUICore',
+      name: 'PurerUIHooks',
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
@@ -26,9 +26,8 @@ export default defineConfig({
         },
       },
     },
+    commonjsOptions: {
+      esmExternals: true,
+    },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
-}); 
+});

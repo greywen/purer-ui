@@ -5,11 +5,18 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "watch": "vite build --watch",
     "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "test": "vitest run"
@@ -21,6 +28,7 @@
     "next": "^13.0.0 || ^14.0.0 || ^15.0.0"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
     "@purer-ui/core": "workspace:*"
   },
   "publishConfig": {

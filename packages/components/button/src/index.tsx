@@ -1,117 +1,59 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from '@purer-ui/core';
+import { Slot } from '@radix-ui/react-slot';
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'solid' | 'outline' | 'ghost' | 'link';
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  color?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
-  fullWidth?: boolean;
-  loading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-}
+import { cn, cva, type VariantProps } from '@purer-ui/core';
 
-export function Button({
-  variant = 'solid',
-  size = 'md',
-  color = 'primary',
-  fullWidth = false,
-  loading = false,
-  leftIcon,
-  rightIcon,
+const buttonVariants = cva(
+  "cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 focus-visible:ring-4 focus-visible:outline-1 aria-invalid:focus-visible:ring-0",
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90',
+        outline:
+          'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground',
+        secondary:
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 rounded-md px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-9',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+function Button({
   className,
-  children,
-  disabled,
+  variant,
+  size,
+  asChild = false,
   ...props
-}: ButtonProps) {
-  const baseClass =
-    'rounded-md font-medium transition-colors focus:outline-none flex items-center justify-center';
-
-  const sizeClasses = {
-    sm: 'h-8 px-3 text-xs',
-    md: 'h-10 px-4 text-sm',
-    lg: 'h-12 px-6 text-base',
-    xl: 'h-14 px-8 text-lg',
-  };
-
-  const colorVariants = {
-    primary: {
-      solid: 'bg-blue-600 text-white hover:bg-blue-700',
-      outline: 'border border-blue-600 text-blue-600 hover:bg-blue-50',
-      ghost: 'text-blue-600 hover:bg-blue-50',
-      link: 'text-blue-600 underline-offset-4 hover:underline',
-    },
-    secondary: {
-      solid: 'bg-gray-600 text-white hover:bg-gray-700',
-      outline: 'border border-gray-600 text-gray-600 hover:bg-gray-50',
-      ghost: 'text-gray-600 hover:bg-gray-50',
-      link: 'text-gray-600 underline-offset-4 hover:underline',
-    },
-    danger: {
-      solid: 'bg-red-600 text-white hover:bg-red-700',
-      outline: 'border border-red-600 text-red-600 hover:bg-red-50',
-      ghost: 'text-red-600 hover:bg-red-50',
-      link: 'text-red-600 underline-offset-4 hover:underline',
-    },
-    success: {
-      solid: 'bg-green-600 text-white hover:bg-green-700',
-      outline: 'border border-green-600 text-green-600 hover:bg-green-50',
-      ghost: 'text-green-600 hover:bg-green-50',
-      link: 'text-green-600 underline-offset-4 hover:underline',
-    },
-    warning: {
-      solid: 'bg-yellow-600 text-white hover:bg-yellow-700',
-      outline: 'border border-yellow-600 text-yellow-600 hover:bg-yellow-50',
-      ghost: 'text-yellow-600 hover:bg-yellow-50',
-      link: 'text-yellow-600 underline-offset-4 hover:underline',
-    },
-  };
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  }) {
+  const Comp = asChild ? Slot : 'button';
 
   return (
-    <button
-      className={cn(
-        baseClass,
-        sizeClasses[size],
-        colorVariants[color][variant],
-        fullWidth && 'w-full',
-        (disabled || loading) && 'opacity-60 cursor-not-allowed',
-        className
-      )}
-      disabled={disabled || loading}
+    <Comp
+      data-slot='button'
+      className={cn(buttonVariants({ variant, size, className }), 'select-none')}
       {...props}
-    >
-      {leftIcon && <span className='mr-2'>{leftIcon}</span>}
-      {loading ? (
-        <>
-          <svg
-            className='w-4 h-4 mr-2 animate-spin'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-          >
-            <circle
-              className='opacity-25'
-              cx='12'
-              cy='12'
-              r='10'
-              stroke='currentColor'
-              strokeWidth='4'
-            ></circle>
-            <path
-              className='opacity-75'
-              fill='currentColor'
-              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-            ></path>
-          </svg>
-          {children}
-        </>
-      ) : (
-        children
-      )}
-      {rightIcon && <span className='ml-2'>{rightIcon}</span>}
-    </button>
+    />
   );
 }
+
+export { Button, buttonVariants };

@@ -3,16 +3,12 @@ import { resolve } from 'path';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     dts({
-      include: ['src/**/*'],
-      beforeWriteFile: (filePath, content) => ({
-        filePath: filePath.replace('/dist/src/', '/dist/'),
-        content,
-      }),
+      include: ['src'],
+      outDir: 'dist',
     }),
   ],
   build: {
@@ -22,14 +18,18 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: ['react', 'react-dom', 'react/jsx-runtime', '@purer-ui/core'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'jsxRuntime',
+          '@purer-ui/core': 'PurerUICore',
         },
       },
+    },
+    commonjsOptions: {
+      esmExternals: true,
     },
   },
 });

@@ -16,19 +16,25 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'clsx', 'tailwind-merge'],
+      external: [
+        'react',
+        'react-dom',
+        'clsx',
+        'tailwind-merge',
+        'react/jsx-runtime',
+      ],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           clsx: 'clsx',
           'tailwind-merge': 'tailwindMerge',
+          'react/jsx-runtime': 'jsxRuntime',
         },
       },
     },
+    commonjsOptions: {
+      esmExternals: true,
+    },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-  },
-}); 
+});

@@ -6,7 +6,6 @@ build
 .turbo
 .next
 out
-storybook-static
 
 logs
 *.log
